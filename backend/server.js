@@ -31,14 +31,22 @@ async function testConnection() {
     connection.release();
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
-    process.exit(1);
+    console.error('Server will continue running, but database features will not work');
   }
 }
 
+// Import routes
+const candidatesRoutes = require('./routes/candidates');
+const votesRoutes = require('./routes/votes');
+
+// Register routes
+app.use('/api/candidates', candidatesRoutes(pool));
+app.use('/api/vote', votesRoutes(pool));
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Server is running',
     timestamp: new Date().toISOString()
   });
@@ -50,50 +58,33 @@ app.get('/api/health/db', async (req, res) => {
     const connection = await pool.getConnection();
     await connection.query('SELECT 1');
     connection.release();
-    res.json({ 
-      status: 'OK', 
+    res.json({
+      status: 'OK',
       message: 'Database connection is healthy',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
+    res.status(500).json({
+      status: 'ERROR',
       message: 'Database connection failed',
       error: error.message
     });
   }
 });
 
-// Example route - Get all data from a table
-app.get('/api/example', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT 1 as test');
-    res.json({ 
-      success: true, 
-      data: rows 
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Query failed',
-      error: error.message 
-    });
-  }
-});
-
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Endpoint not found' 
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint not found'
   });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ 
-    success: false, 
+  res.status(500).json({
+    success: false,
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });

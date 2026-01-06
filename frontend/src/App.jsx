@@ -109,9 +109,9 @@ function App() {
               : 'hover:shadow-2xl'
               }`}
           >
-            <div className="w-full h-32 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
+            <div className="w-full aspect-[3/4] bg-blue-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
               {item.photo_url ? (
-                <img src={item.photo_url} alt={item.name} className="h-full object-cover rounded-xl" />
+                <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
@@ -138,9 +138,9 @@ function App() {
               : 'hover:shadow-2xl'
               }`}
           >
-            <div className="w-full h-32 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
+            <div className="w-full aspect-[3/4] bg-blue-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
               {item.photo_url ? (
-                <img src={item.photo_url} alt={item.name} className="h-full object-cover rounded-xl" />
+                <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
@@ -161,7 +161,7 @@ function App() {
         <button
           onClick={handleSaveVote}
           disabled={!selectedCandidate || voting}
-          className={`px-12 py-4 rounded-xl font-bold text-lg transition ${!selectedCandidate
+          className={`w-64 py-4 rounded-xl font-bold text-lg transition ${!selectedCandidate
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : voting
               ? 'bg-blue-400 text-white cursor-wait'
@@ -174,7 +174,7 @@ function App() {
         <div>
           <Link
             to="/results"
-            className="inline-block bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+            className="inline-block w-64 text-center bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
           >
             📊 Lihat Hasil Voting
           </Link>

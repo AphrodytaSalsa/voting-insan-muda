@@ -133,7 +133,7 @@ function Results() {
                 <div>
                     <Link
                         to="/"
-                        className="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                        className="inline-block w-64 text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
                     >
                         ← Kembali ke Voting
                     </Link>
@@ -142,9 +142,9 @@ function Results() {
                     <button
                         onClick={handleReset}
                         disabled={resetting}
-                        className={`px-8 py-3 rounded-xl font-semibold transition ${resetting
-                                ? 'bg-gray-400 text-white cursor-wait'
-                                : 'bg-red-600 text-white hover:bg-red-700'
+                        className={`w-64 px-8 py-3 rounded-xl font-semibold transition ${resetting
+                            ? 'bg-gray-400 text-white cursor-wait'
+                            : 'bg-red-600 text-white hover:bg-red-700'
                             }`}
                     >
                         {resetting ? '⏳ Mereset...' : '🗑️ Reset Semua Voting'}

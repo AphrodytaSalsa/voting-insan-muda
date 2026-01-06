@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -150,6 +151,15 @@ function App() {
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="text-center mt-12">
+        <Link
+          to="/results"
+          className="inline-block bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+        >
+          📊 Lihat Hasil Voting
+        </Link>
       </div>
     </div>
   );

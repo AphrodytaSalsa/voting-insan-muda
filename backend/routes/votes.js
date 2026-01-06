@@ -92,5 +92,19 @@ module.exports = (pool) => {
         }
     });
 
+    // DELETE /api/vote/reset - Reset semua voting
+    router.delete('/reset', async (req, res) => {
+        try {
+            await pool.query('DELETE FROM votes');
+            res.json({
+                success: true,
+                message: 'Semua data voting berhasil direset!'
+            });
+        } catch (error) {
+            console.error('Error resetting votes:', error);
+            res.status(500).json({ success: false, message: 'Gagal mereset voting' });
+        }
+    });
+
     return router;
 };

@@ -8,31 +8,57 @@ function Results() {
     const [totalVotes, setTotalVotes] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [resetting, setResetting] = useState(false);
+
+    const fetchResults = async () => {
+        try {
+            const response = await fetch(`${API_URL}/vote/results`);
+            const data = await response.json();
+            if (data.success) {
+                setResults(data.data);
+                setTotalVotes(data.totalVotes);
+            } else {
+                setError('Gagal memuat hasil voting');
+            }
+        } catch (err) {
+            setError('Tidak dapat terhubung ke server');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchResults = async () => {
-            try {
-                const response = await fetch(`${API_URL}/vote/results`);
-                const data = await response.json();
-                if (data.success) {
-                    setResults(data.data);
-                    setTotalVotes(data.totalVotes);
-                } else {
-                    setError('Gagal memuat hasil voting');
-                }
-            } catch (err) {
-                setError('Tidak dapat terhubung ke server');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchResults();
         // Auto refresh setiap 10 detik
         const interval = setInterval(fetchResults, 10000);
         return () => clearInterval(interval);
     }, []);
+
+    const handleReset = async () => {
+        const confirmReset = window.confirm('⚠️ Apakah Anda yakin ingin mereset SEMUA data voting? Tindakan ini tidak dapat dibatalkan!');
+        if (!confirmReset) return;
+
+        setResetting(true);
+        try {
+            const response = await fetch(`${API_URL}/vote/reset`, {
+                method: 'DELETE',
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ ' + data.message);
+                fetchResults(); // Refresh data
+            } else {
+                alert('❌ ' + data.message);
+            }
+        } catch (err) {
+            alert('❌ Gagal mereset voting');
+            console.error(err);
+        } finally {
+            setResetting(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -103,13 +129,27 @@ function Results() {
                 })}
             </div>
 
-            <div className="text-center mt-12">
-                <Link
-                    to="/"
-                    className="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
-                >
-                    ← Kembali ke Voting
-                </Link>
+            <div className="text-center mt-12 space-y-4">
+                <div>
+                    <Link
+                        to="/"
+                        className="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                    >
+                        ← Kembali ke Voting
+                    </Link>
+                </div>
+                <div>
+                    <button
+                        onClick={handleReset}
+                        disabled={resetting}
+                        className={`px-8 py-3 rounded-xl font-semibold transition ${resetting
+                                ? 'bg-gray-400 text-white cursor-wait'
+                                : 'bg-red-600 text-white hover:bg-red-700'
+                            }`}
+                    >
+                        {resetting ? '⏳ Mereset...' : '🗑️ Reset Semua Voting'}
+                    </button>
+                </div>
             </div>
 
             <p className="text-center text-gray-400 text-sm mt-8">
@@ -120,3 +160,4 @@ function Results() {
 }
 
 export default Results;
+

@@ -98,14 +98,15 @@ function App() {
         )}
       </header>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
-        {candidates.map((item) => (
+      {/* Row 1: Calon 01, 02, 03 */}
+      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-6">
+        {candidates.slice(0, 3).map((item) => (
           <div
             key={item.id}
             onClick={() => handleSelectCandidate(item.id)}
             className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 ${selectedCandidate === item.id
-                ? 'ring-4 ring-blue-500 bg-blue-50'
-                : 'hover:shadow-2xl'
+              ? 'ring-4 ring-blue-500 bg-blue-50'
+              : 'hover:shadow-2xl'
               }`}
           >
             <div className="w-full h-32 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
@@ -125,16 +126,46 @@ function App() {
         ))}
       </div>
 
+      {/* Row 2: Calon 04, 05 - centered with offset */}
+      <div className="flex justify-center gap-6 max-w-5xl mx-auto mb-8">
+        <div className="w-1/6 hidden md:block"></div>
+        {candidates.slice(3, 5).map((item) => (
+          <div
+            key={item.id}
+            onClick={() => handleSelectCandidate(item.id)}
+            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 w-full md:w-1/3 ${selectedCandidate === item.id
+              ? 'ring-4 ring-blue-500 bg-blue-50'
+              : 'hover:shadow-2xl'
+              }`}
+          >
+            <div className="w-full h-32 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
+              {item.photo_url ? (
+                <img src={item.photo_url} alt={item.name} className="h-full object-cover rounded-xl" />
+              ) : (
+                <span className="text-5xl">👤</span>
+              )}
+            </div>
+            <h2 className="text-xl font-bold text-center">{item.name}</h2>
+            {selectedCandidate === item.id && (
+              <div className="mt-3 text-center text-blue-600 font-semibold">
+                ✓ Dipilih
+              </div>
+            )}
+          </div>
+        ))}
+        <div className="w-1/6 hidden md:block"></div>
+      </div>
+
       {/* Tombol Simpan Vote */}
       <div className="text-center space-y-4">
         <button
           onClick={handleSaveVote}
           disabled={!selectedCandidate || voting}
           className={`px-12 py-4 rounded-xl font-bold text-lg transition ${!selectedCandidate
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : voting
-                ? 'bg-blue-400 text-white cursor-wait'
-                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : voting
+              ? 'bg-blue-400 text-white cursor-wait'
+              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
             }`}
         >
           {voting ? '⏳ Menyimpan...' : '💾 Simpan Vote'}

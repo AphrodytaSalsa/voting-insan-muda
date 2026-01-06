@@ -7,19 +7,9 @@ function App() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [voting, setVoting] = useState(false);
-  const [voted, setVoted] = useState(false);
-  const [votedFor, setVotedFor] = useState(null);
-
-  // Get or create voter token
-  const getVoterToken = () => {
-    let token = localStorage.getItem('voterToken');
-    if (!token) {
-      token = crypto.randomUUID();
-      localStorage.setItem('voterToken', token);
-    }
-    return token;
-  };
+  const [lastVote, setLastVote] = useState(null);
 
   // Fetch candidates from backend
   useEffect(() => {
@@ -40,30 +30,15 @@ function App() {
       }
     };
 
-    // Check if already voted
-    const checkVoteStatus = async () => {
-      const token = getVoterToken();
-      try {
-        const response = await fetch(`${API_URL}/vote/check/${token}`);
-        const data = await response.json();
-        if (data.success && data.hasVoted) {
-          setVoted(true);
-          setVotedFor(data.vote.candidate_name);
-        }
-      } catch (err) {
-        console.error('Error checking vote status:', err);
-      }
-    };
-
     fetchCandidates();
-    checkVoteStatus();
   }, []);
 
-  const handleVote = async (id, name) => {
-    if (voted || voting) return;
+  const handleSelectCandidate = (id) => {
+    setSelectedCandidate(id);
+  };
 
-    const confirmVote = window.confirm(`Apakah Anda yakin memilih ${name}?`);
-    if (!confirmVote) return;
+  const handleSaveVote = async () => {
+    if (!selectedCandidate || voting) return;
 
     setVoting(true);
     try {
@@ -73,22 +48,19 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          candidateId: id,
-          voterToken: getVoterToken(),
+          candidateId: selectedCandidate,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setVoted(true);
-        setVotedFor(name);
+        const votedName = candidates.find(c => c.id === selectedCandidate)?.name;
+        setLastVote(votedName);
+        setSelectedCandidate(null);
         alert('✅ ' + data.message);
       } else {
         alert('❌ ' + data.message);
-        if (data.alreadyVoted) {
-          setVoted(true);
-        }
       }
     } catch (err) {
       alert('❌ Gagal mengirim vote. Coba lagi nanti.');
@@ -118,48 +90,64 @@ function App() {
     <div className="min-h-screen bg-gray-100 p-8">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold text-blue-600">Voting Ketua Insan Muda</h1>
-        <p className="text-gray-600 mt-2">Gunakan suaramu untuk masa depan yang lebih baik</p>
-        {voted && (
+        <p className="text-gray-600 mt-2">Pilih kandidat lalu klik tombol Simpan Vote</p>
+        {lastVote && (
           <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-xl inline-block">
-            ✅ Anda sudah memilih: <strong>{votedFor}</strong>
+            ✅ Vote terakhir: <strong>{lastVote}</strong>
           </div>
         )}
       </header>
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
         {candidates.map((item) => (
-          <div key={item.id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
-            <div className="w-full h-40 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
+          <div
+            key={item.id}
+            onClick={() => handleSelectCandidate(item.id)}
+            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 ${selectedCandidate === item.id
+                ? 'ring-4 ring-blue-500 bg-blue-50'
+                : 'hover:shadow-2xl'
+              }`}
+          >
+            <div className="w-full h-32 bg-blue-100 rounded-xl mb-4 flex items-center justify-center">
               {item.photo_url ? (
                 <img src={item.photo_url} alt={item.name} className="h-full object-cover rounded-xl" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
             </div>
-            <h2 className="text-2xl font-bold mb-4">{item.name}</h2>
-            <button
-              onClick={() => handleVote(item.id, item.name)}
-              disabled={voted || voting}
-              className={`w-full py-3 rounded-xl font-semibold transition ${voted
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : voting
-                  ? 'bg-blue-400 text-white cursor-wait'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-            >
-              {voting ? 'Memproses...' : voted ? 'Sudah Memilih' : 'Pilih Sekarang'}
-            </button>
+            <h2 className="text-xl font-bold text-center">{item.name}</h2>
+            {selectedCandidate === item.id && (
+              <div className="mt-3 text-center text-blue-600 font-semibold">
+                ✓ Dipilih
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="text-center mt-12">
-        <Link
-          to="/results"
-          className="inline-block bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+      {/* Tombol Simpan Vote */}
+      <div className="text-center space-y-4">
+        <button
+          onClick={handleSaveVote}
+          disabled={!selectedCandidate || voting}
+          className={`px-12 py-4 rounded-xl font-bold text-lg transition ${!selectedCandidate
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : voting
+                ? 'bg-blue-400 text-white cursor-wait'
+                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+            }`}
         >
-          📊 Lihat Hasil Voting
-        </Link>
+          {voting ? '⏳ Menyimpan...' : '💾 Simpan Vote'}
+        </button>
+
+        <div>
+          <Link
+            to="/results"
+            className="inline-block bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+          >
+            📊 Lihat Hasil Voting
+          </Link>
+        </div>
       </div>
     </div>
   );

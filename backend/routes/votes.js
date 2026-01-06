@@ -1,37 +1,19 @@
 const express = require('express');
-const crypto = require('crypto');
 const router = express.Router();
 
 module.exports = (pool) => {
-    // POST /api/vote - Submit vote
+    // POST /api/vote - Submit vote (allows multiple votes)
     router.post('/', async (req, res) => {
         try {
-            const { candidateId, voterToken } = req.body;
+            const { candidateId } = req.body;
 
             if (!candidateId) {
                 return res.status(400).json({ success: false, message: 'Candidate ID is required' });
             }
 
-            // Generate voter token jika tidak ada (dari browser fingerprint atau session)
-            const token = voterToken || crypto.randomUUID();
-
-            // Cek apakah sudah pernah voting
-            const [existing] = await pool.query(
-                'SELECT id FROM votes WHERE voter_token = ?',
-                [token]
-            );
-
-            if (existing.length > 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Anda sudah melakukan voting sebelumnya',
-                    alreadyVoted: true
-                });
-            }
-
             // Cek apakah kandidat valid
             const [candidate] = await pool.query(
-                'SELECT id FROM candidates WHERE id = ?',
+                'SELECT id, name FROM candidates WHERE id = ?',
                 [candidateId]
             );
 
@@ -42,13 +24,12 @@ module.exports = (pool) => {
             // Insert vote
             await pool.query(
                 'INSERT INTO votes (candidate_id, voter_token) VALUES (?, ?)',
-                [candidateId, token]
+                [candidateId, 'anonymous']
             );
 
             res.json({
                 success: true,
-                message: 'Vote berhasil dicatat!',
-                voterToken: token
+                message: `Vote untuk ${candidate[0].name} berhasil dicatat!`
             });
         } catch (error) {
             console.error('Error submitting vote:', error);

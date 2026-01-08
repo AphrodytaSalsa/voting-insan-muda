@@ -55,10 +55,8 @@ function App() {
       const data = await response.json();
 
       if (data.success) {
-        const votedName = candidates.find(c => c.id === selectedCandidate)?.name;
-        setLastVote(votedName);
         setSelectedCandidate(null);
-        alert('✅ ' + data.message);
+        alert('✅ Vote tersimpan');
       } else {
         alert('❌ ' + data.message);
       }
@@ -72,30 +70,25 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Memuat data...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fef08a 0%, #eab308 100%)' }}>
+        <div className="text-xl" style={{ color: '#1e3a5a' }}>Memuat data...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fef08a 0%, #eab308 100%)' }}>
         <div className="text-xl text-red-600">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen p-8" style={{ background: 'linear-gradient(135deg, #fef08a 0%, #eab308 100%)' }}>
       <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-blue-600">Voting Ketua Insan Muda</h1>
+        <h1 className="text-4xl font-bold" style={{ color: '#1e3a5a' }}>BERIKAN SUARAMU</h1>
         <p className="text-gray-600 mt-2">Pilih kandidat lalu klik tombol Simpan Vote</p>
-        {lastVote && (
-          <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-xl inline-block">
-            ✅ Vote terakhir: <strong>{lastVote}</strong>
-          </div>
-        )}
       </header>
 
       {/* Row 1: Calon 01, 02, 03 */}
@@ -104,21 +97,22 @@ function App() {
           <div
             key={item.id}
             onClick={() => handleSelectCandidate(item.id)}
-            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 ${selectedCandidate === item.id
-              ? 'ring-4 ring-blue-500 bg-blue-50'
+            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 border border-gray-200 ${selectedCandidate === item.id
+              ? 'ring-4 ring-red-500 bg-red-50'
               : 'hover:shadow-2xl'
               }`}
           >
-            <div className="w-full aspect-[3/4] bg-blue-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+            <div className="w-full aspect-[3/4] rounded-xl mb-4 flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#8B4513' }}>
               {item.photo_url ? (
                 <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
             </div>
-            <h2 className="text-xl font-bold text-center">{item.name}</h2>
+            <p className="text-center text-xl font-bold mt-2" style={{ color: '#1e3a5a' }}>0{item.id}</p>
+            <h2 className="text-xl font-bold text-center" style={{ color: '#1e3a5a' }}>{item.name}</h2>
             {selectedCandidate === item.id && (
-              <div className="mt-3 text-center text-blue-600 font-semibold">
+              <div className="mt-3 text-center text-red-600 font-semibold">
                 ✓ Dipilih
               </div>
             )}
@@ -133,21 +127,22 @@ function App() {
           <div
             key={item.id}
             onClick={() => handleSelectCandidate(item.id)}
-            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 w-full md:w-1/3 ${selectedCandidate === item.id
-              ? 'ring-4 ring-blue-500 bg-blue-50'
+            className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer transition transform hover:scale-105 w-full md:w-1/3 border border-gray-200 ${selectedCandidate === item.id
+              ? 'ring-4 ring-red-500 bg-red-50'
               : 'hover:shadow-2xl'
               }`}
           >
-            <div className="w-full aspect-[3/4] bg-blue-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+            <div className="w-full aspect-[3/4] rounded-xl mb-4 flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#8B4513' }}>
               {item.photo_url ? (
                 <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-5xl">👤</span>
               )}
             </div>
-            <h2 className="text-xl font-bold text-center">{item.name}</h2>
+            <p className="text-center text-xl font-bold mt-2" style={{ color: '#1e3a5a' }}>0{item.id}</p>
+            <h2 className="text-xl font-bold text-center" style={{ color: '#1e3a5a' }}>{item.name}</h2>
             {selectedCandidate === item.id && (
-              <div className="mt-3 text-center text-blue-600 font-semibold">
+              <div className="mt-3 text-center text-red-600 font-semibold">
                 ✓ Dipilih
               </div>
             )}
@@ -164,8 +159,8 @@ function App() {
           className={`w-64 py-4 rounded-xl font-bold text-lg transition ${!selectedCandidate
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : voting
-              ? 'bg-blue-400 text-white cursor-wait'
-              : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+              ? 'bg-red-400 text-white cursor-wait'
+              : 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
             }`}
         >
           {voting ? '⏳ Menyimpan...' : '💾 Simpan Vote'}
@@ -173,8 +168,8 @@ function App() {
 
         <div>
           <Link
-            to="/results"
-            className="inline-block w-64 text-center bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+            to="/login-results"
+            className="inline-block w-64 text-center text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition" style={{ backgroundColor: '#1e3a5a' }}
           >
             📊 Lihat Hasil Voting
           </Link>
